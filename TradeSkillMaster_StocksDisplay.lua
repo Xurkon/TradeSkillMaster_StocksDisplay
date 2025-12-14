@@ -10,8 +10,8 @@ TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TSM_StocksDisplay", "AceEvent-3.0",
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_StocksDisplay")
 
 -- Constants
-local ICON_SIZE = 32
-local ICONS_PER_ROW = 8
+local ICON_SIZE = 24
+local ICONS_PER_ROW = 10
 local HEADER_HEIGHT = 24
 local GROUP_HEADER_HEIGHT = 20
 local PADDING = 4
@@ -503,7 +503,7 @@ function TSM:GetOrCreateItemButton(index)
 		btn.icon = icon
 
 		-- Count text
-		local count = btn:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		local count = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalOutlineSmall")
 		count:SetPoint("BOTTOMRIGHT", -2, 2)
 		count:SetJustifyH("RIGHT")
 		btn.count = count
@@ -641,6 +641,19 @@ function TSM:MoveGroupDown(groupName)
 	end
 end
 
+function TSM:FormatCount(count)
+	if count >= 1000 then
+		local thousands = math.floor(count / 1000)
+		local hundreds = math.floor((count % 1000) / 100)
+		if hundreds > 0 then
+			return thousands .. "k" .. hundreds
+		else
+			return thousands .. "k"
+		end
+	end
+	return tostring(count)
+end
+
 function TSM:SetupItemButton(btn, itemString, ItemTracker)
 	local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(itemString)
 
@@ -658,7 +671,7 @@ function TSM:SetupItemButton(btn, itemString, ItemTracker)
 		local realmBankTotal = ItemTracker:GetRealmBankTotal(itemString) or 0
 		local total = (playerTotal or 0) + (altTotal or 0) + guildTotal + auctionTotal + personalBanksTotal + realmBankTotal
 
-		btn.count:SetText(total > 0 and total or "0")
+		btn.count:SetText(TSM:FormatCount(total))
 	else
 		btn.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 		btn.itemString = itemString
